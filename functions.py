@@ -1,4 +1,3 @@
-#?
 
 FILEPATH = 'todos.txt'
 

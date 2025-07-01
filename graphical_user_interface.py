@@ -1,4 +1,3 @@
-#?
 
 import functions
 import FreeSimpleGUI as sg
