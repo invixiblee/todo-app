@@ -1,10 +1,14 @@
 
 import functions
 import FreeSimpleGUI as sg
+import time
 
+sg.theme('Black')
+
+clock = sg.Text('', key='clock')
 label = sg.Text("Type in a to-do:")
 input_box = sg.InputText(tooltip="Enter to-do", key='todo')
-addb = sg.Button("Add")
+addb = sg.Button("Add", size=10)
 listbox = sg.Listbox(values=functions.gtodos(), key='todos', 
                      enable_events=True, size=[45, 10])
 editb = sg.Button("Edit")
@@ -12,17 +16,16 @@ completeb = sg.Button("Complete")
 exitb = sg.Button("Exit")
 
 window = sg.Window('My To-Do App', 
-                   layout=[[label], 
+                   layout=[[clock],
+                           [label], 
                            [input_box, addb], 
                            [listbox, editb, completeb], 
                            [exitb]], 
                    font=('Helvetica', 13))
 
 while True:
-    event, values = window.read()
-    print(1, event)
-    print(2, values)
-    print(3, values['todos'])
+    event, values = window.read(timeout=200)
+    window['clock'].update(value=time.strftime("%b %d, %Y %H:%M:%S"))
 
     match event:
         case 'Add':
@@ -33,22 +36,28 @@ while True:
             window['todos'].update(values=todos)
 
         case 'Edit':
-            todoe = values['todos'][0]
-            ntodo = values['todo']
+            try:
+                todoe = values['todos'][0]
+                ntodo = values['todo']
 
-            todos = functions.gtodos()
-            index = todos.index(todoe)
-            todos[index] = ntodo + '\n'
-            functions.wtodos(todos)
-            window['todos'].update(values=todos)
+                todos = functions.gtodos()
+                index = todos.index(todoe)
+                todos[index] = ntodo + '\n'
+                functions.wtodos(todos)
+                window['todos'].update(values=todos)
+            except IndexError:
+                sg.popup("Please select an item first", font=('Helvetica', 13))
 
         case 'Complete':
-            todoc = values['todos'][0]
-            todos = functions.gtodos()
-            todos.remove(todoc)
-            functions.wtodos(todos)
-            window['todos'].update(values=todos)
-            window['todo'].update(value='')
+            try:
+                todoc = values['todos'][0]
+                todos = functions.gtodos()
+                todos.remove(todoc)
+                functions.wtodos(todos)
+                window['todos'].update(values=todos)
+                window['todo'].update(value='')
+            except IndexError:
+                sg.popup("Please select an item first", font=('Helvetica', 13))
 
         case 'Exit':
             break
